@@ -130,7 +130,7 @@ paths:
         500:
           description: Internal server error
 
-  /login:
+  /sign_in:
     post:
       requestBody:
         $ref: "#/components/requestBodies/Login"
