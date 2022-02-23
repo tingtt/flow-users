@@ -3,7 +3,6 @@ package main
 import (
 	"flow-user/jwt"
 	"flow-user/oauth2"
-	"flow-user/oauth2/github"
 	"flow-user/oauth2/google"
 	"flow-user/oauth2/twitter"
 	"net/http"
@@ -24,51 +23,6 @@ func refreshOAuth2Token(c echo.Context) (err error) {
 	// Privider
 	provider := c.Param("provider")
 	switch provider {
-	case oauth2.ProviderGitHub.String():
-		if *githubClientId == "" || *githubClientSecret == "" {
-			// 404: Not found
-			return echo.ErrNotFound
-		}
-
-		a, err := github.New(*githubClientId, *githubClientSecret)
-		if err != nil {
-			c.Logger().Debug(err)
-			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
-		}
-
-		// Read DB row
-		owner, notFound, err := github.Get(user_id)
-		if err != nil {
-			c.Logger().Debug(err)
-			return c.JSONPretty(http.StatusNotFound, map[string]string{"message": err.Error()}, "	")
-		}
-		if notFound {
-			return echo.ErrNotFound
-		}
-
-		// Refresh token
-		newOwner, err := a.RefreshToken(owner.RefreshToken)
-		if err != nil {
-			c.Logger().Debug(err)
-			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
-		}
-
-		// Update DB row
-		_, err = github.Insert(
-			github.OAuth2{
-				AccessToken:          newOwner.AccessToken,
-				ExpireIn:             newOwner.ExpireIn,
-				RefreshToken:         newOwner.RefreshToken,
-				RefreshTokenExpireIn: newOwner.RefreshTokenExpireIn,
-				OwnerId:              owner.OwnerId,
-			},
-			user_id,
-		)
-		if err != nil {
-			c.Logger().Debug(err)
-			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
-		}
-
 	case oauth2.ProviderGoogle.String():
 		if *googleClientId == "" || *googleClientSecret == "" {
 			// 404: Not found

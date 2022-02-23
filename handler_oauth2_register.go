@@ -12,11 +12,23 @@ import (
 	"github.com/labstack/echo"
 )
 
-type UserPostOverOAuth2 struct {
+type UserPostOverGitHubOAuth2 struct {
+	AccessToken string `json:"access_token" validate:"require"`
+	Password    string `json:"password" validate:"require"`
+}
+
+type UserPostOverGoogleOAuth2 struct {
+	AccessToken  string `json:"access_token" validate:"require"`
+	ExpireIn     int64  `json:"expire_in" validate:"require"`
+	RefreshToken string `json:"refresh_token" validate:"require"`
+	Password     string `json:"password" validate:"require"`
+}
+
+type UserPostOverTwitterOAuth2 struct {
 	AccessToken          string `json:"access_token" validate:"require"`
 	ExpireIn             int64  `json:"expire_in" validate:"require"`
 	RefreshToken         string `json:"refresh_token" validate:"require"`
-	RefreshTokenExpireIn int64  `json:"refresh_token_expire_in"`
+	RefreshTokenExpireIn int64  `json:"refresh_token_expire_in" validate:"require"`
 	Password             string `json:"password" validate:"require"`
 }
 
@@ -55,21 +67,6 @@ func postOverOAuth2(c echo.Context) (err error) {
 		return c.JSONPretty(http.StatusUnsupportedMediaType, map[string]string{"message": err.Error()}, "	")
 	}
 
-	// Bind request body
-	p := new(UserPostOverOAuth2)
-	if err = c.Bind(p); err != nil {
-		// 400: Bad request
-		c.Logger().Debug(err)
-		return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": err.Error()}, "	")
-	}
-
-	// Validate request body
-	if err = c.Validate(p); err != nil {
-		// 422: Unprocessable entity
-		c.Logger().Debug(err)
-		return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
-	}
-
 	// Get owner info
 	var u user.User
 	var name string
@@ -77,6 +74,21 @@ func postOverOAuth2(c echo.Context) (err error) {
 
 	switch provider {
 	case "github":
+		// Bind request body
+		p := new(UserPostOverGitHubOAuth2)
+		if err = c.Bind(p); err != nil {
+			// 400: Bad request
+			c.Logger().Debug(err)
+			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": err.Error()}, "	")
+		}
+
+		// Validate request body
+		if err = c.Validate(p); err != nil {
+			// 422: Unprocessable entity
+			c.Logger().Debug(err)
+			return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
+		}
+
 		// Get owner info
 		a, err := github.New(*githubClientId, *githubClientSecret)
 		if err != nil {
@@ -117,11 +129,8 @@ func postOverOAuth2(c echo.Context) (err error) {
 		// Write to DB
 		_, err = github.Insert(
 			github.OAuth2{
-				AccessToken:          p.AccessToken,
-				ExpireIn:             p.ExpireIn,
-				RefreshToken:         p.RefreshToken,
-				RefreshTokenExpireIn: p.RefreshTokenExpireIn,
-				OwnerId:              o.Id,
+				AccessToken: p.AccessToken,
+				OwnerId:     o.Id,
 			},
 			u.Id,
 		)
@@ -131,6 +140,21 @@ func postOverOAuth2(c echo.Context) (err error) {
 		}
 
 	case "google":
+		// Bind request body
+		p := new(UserPostOverGoogleOAuth2)
+		if err = c.Bind(p); err != nil {
+			// 400: Bad request
+			c.Logger().Debug(err)
+			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": err.Error()}, "	")
+		}
+
+		// Validate request body
+		if err = c.Validate(p); err != nil {
+			// 422: Unprocessable entity
+			c.Logger().Debug(err)
+			return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
+		}
+
 		// Get owner info
 		a, err := google.New(*googleClientId, *googleClientSecret)
 		if err != nil {
@@ -178,6 +202,21 @@ func postOverOAuth2(c echo.Context) (err error) {
 		}
 
 	case "twitter":
+		// Bind request body
+		p := new(UserPostOverTwitterOAuth2)
+		if err = c.Bind(p); err != nil {
+			// 400: Bad request
+			c.Logger().Debug(err)
+			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": err.Error()}, "	")
+		}
+
+		// Validate request body
+		if err = c.Validate(p); err != nil {
+			// 422: Unprocessable entity
+			c.Logger().Debug(err)
+			return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
+		}
+
 		// Get owner info
 		a, err := twitter.New(*googleClientId, *googleClientSecret)
 		if err != nil {

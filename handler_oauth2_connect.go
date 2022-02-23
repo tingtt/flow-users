@@ -13,7 +13,17 @@ import (
 	"github.com/labstack/echo"
 )
 
-type OAuth2Post struct {
+type OAuth2GitHubPost struct {
+	AccessToken string `json:"access_token" validate:"require"`
+}
+
+type OAuth2GooglePost struct {
+	AccessToken  string `json:"access_token" validate:"require"`
+	ExpireIn     int64  `json:"expire_in" validate:"require"`
+	RefreshToken string `json:"refresh_token" validate:"require"`
+}
+
+type OAuth2TwitterPost struct {
 	AccessToken          string `json:"access_token" validate:"require"`
 	ExpireIn             int64  `json:"expire_in" validate:"require"`
 	RefreshToken         string `json:"refresh_token" validate:"require"`
@@ -64,23 +74,23 @@ func connectOAuth2(c echo.Context) (err error) {
 		return c.JSONPretty(http.StatusUnsupportedMediaType, map[string]string{"message": err.Error()}, "	")
 	}
 
-	// Bind request body
-	p := new(OAuth2Post)
-	if err = c.Bind(p); err != nil {
-		// 400: Bad request
-		c.Logger().Debug(err)
-		return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": err.Error()}, "	")
-	}
-
-	// Validate request body
-	if err = c.Validate(p); err != nil {
-		// 422: Unprocessable entity
-		c.Logger().Debug(err)
-		return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
-	}
-
 	switch provider {
 	case "github":
+		// Bind request body
+		p := new(OAuth2GitHubPost)
+		if err = c.Bind(p); err != nil {
+			// 400: Bad request
+			c.Logger().Debug(err)
+			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": err.Error()}, "	")
+		}
+
+		// Validate request body
+		if err = c.Validate(p); err != nil {
+			// 422: Unprocessable entity
+			c.Logger().Debug(err)
+			return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
+		}
+
 		// Get owner info
 		a, err := github.New(*githubClientId, *githubClientSecret)
 		if err != nil {
@@ -96,11 +106,8 @@ func connectOAuth2(c echo.Context) (err error) {
 		// Write to DB
 		_, err = github.Insert(
 			github.OAuth2{
-				AccessToken:          p.AccessToken,
-				ExpireIn:             p.ExpireIn,
-				RefreshToken:         p.RefreshToken,
-				RefreshTokenExpireIn: p.RefreshTokenExpireIn,
-				OwnerId:              o.Id,
+				AccessToken: p.AccessToken,
+				OwnerId:     o.Id,
 			},
 			user_id,
 		)
@@ -110,6 +117,21 @@ func connectOAuth2(c echo.Context) (err error) {
 		}
 
 	case "google":
+		// Bind request body
+		p := new(OAuth2GooglePost)
+		if err = c.Bind(p); err != nil {
+			// 400: Bad request
+			c.Logger().Debug(err)
+			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": err.Error()}, "	")
+		}
+
+		// Validate request body
+		if err = c.Validate(p); err != nil {
+			// 422: Unprocessable entity
+			c.Logger().Debug(err)
+			return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
+		}
+
 		// Get owner info
 		a, err := google.New(*googleClientId, *googleClientSecret)
 		if err != nil {
@@ -138,6 +160,21 @@ func connectOAuth2(c echo.Context) (err error) {
 		}
 
 	case "twitter":
+		// Bind request body
+		p := new(OAuth2TwitterPost)
+		if err = c.Bind(p); err != nil {
+			// 400: Bad request
+			c.Logger().Debug(err)
+			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": err.Error()}, "	")
+		}
+
+		// Validate request body
+		if err = c.Validate(p); err != nil {
+			// 422: Unprocessable entity
+			c.Logger().Debug(err)
+			return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
+		}
+
 		// Get owner info
 		a, err := twitter.New(*twitterClientId, *twitterClientSecret)
 		if err != nil {

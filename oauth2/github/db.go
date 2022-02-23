@@ -2,15 +2,11 @@ package github
 
 import (
 	"flow-user/mysql"
-	"time"
 )
 
 type OAuth2 struct {
-	AccessToken          string
-	ExpireIn             int64
-	RefreshToken         string
-	RefreshTokenExpireIn int64
-	OwnerId              string
+	AccessToken string
+	OwnerId     string
 }
 
 func Get(user_id uint64) (o OAuth2, notFound bool, err error) {
@@ -20,7 +16,7 @@ func Get(user_id uint64) (o OAuth2, notFound bool, err error) {
 	}
 	defer db.Close()
 
-	stmtOut, err := db.Prepare("SELECT access_token, access_token_expire_in, refresh_token, refresh_token_expire_in, owner_id FROM github_oauth2_tokens WHERE user_id = ?")
+	stmtOut, err := db.Prepare("SELECT access_token, owner_id FROM github_oauth2_tokens WHERE user_id = ?")
 	if err != nil {
 		return OAuth2{}, false, err
 	}
@@ -32,22 +28,19 @@ func Get(user_id uint64) (o OAuth2, notFound bool, err error) {
 	}
 
 	var (
-		access_token            string
-		access_token_expire_in  time.Time
-		refresh_token           string
-		refresh_token_expire_in time.Time
-		owner_id                string
+		access_token string
+		owner_id     string
 	)
 	if !rows.Next() {
 		// Not found
 		return OAuth2{}, true, nil
 	}
-	err = rows.Scan(&access_token, &access_token_expire_in, &refresh_token, &refresh_token_expire_in, &owner_id)
+	err = rows.Scan(&access_token, &owner_id)
 	if err != nil {
 		return OAuth2{}, false, err
 	}
 
-	return OAuth2{access_token, access_token_expire_in.Unix(), refresh_token, refresh_token_expire_in.Unix(), owner_id}, false, nil
+	return OAuth2{access_token, owner_id}, false, nil
 }
 
 func Insert(o OAuth2, user_id uint64) (OAuth2, error) {
@@ -69,17 +62,17 @@ func Insert(o OAuth2, user_id uint64) (OAuth2, error) {
 		return OAuth2{}, err
 	}
 	defer db.Close()
-	stmtIns, err := db.Prepare("INSERT INTO github_oauth2_tokens (user_id, access_token, access_token_expire_in, refresh_token, refresh_token_expire_in, owner_id) VALUES(?, ?, ?, ?, ?, ?)")
+	stmtIns, err := db.Prepare("INSERT INTO github_oauth2_tokens (user_id, access_token, owner_id) VALUES(?, ?, ?)")
 	if err != nil {
 		return OAuth2{}, err
 	}
 	defer stmtIns.Close()
-	_, err = stmtIns.Exec(user_id, o.AccessToken, o.ExpireIn, o.RefreshToken, o.RefreshTokenExpireIn, o.OwnerId)
+	_, err = stmtIns.Exec(user_id, o.AccessToken, o.OwnerId)
 	if err != nil {
 		return OAuth2{}, err
 	}
 
-	return OAuth2{o.AccessToken, o.ExpireIn, o.RefreshToken, o.RefreshTokenExpireIn, o.OwnerId}, nil
+	return OAuth2{o.AccessToken, o.OwnerId}, nil
 }
 
 func Delete(user_id uint64) (notFound bool, err error) {
