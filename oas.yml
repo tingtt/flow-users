@@ -135,6 +135,18 @@ paths:
         500:
           description: Internal server error
 
+  /{oauth_providers}:
+    delete:
+      parameters:
+        - $ref: "#/components/parameters/oauth_providers"
+      responses:
+        204:
+          description: Deleted
+        404:
+          description: Not found
+        500:
+          description: Internal server error
+
   /sign_in:
     post:
       requestBody:
