@@ -15,7 +15,7 @@ type Owner struct {
 }
 
 func (g *Application) GetOwner(token string) (o Owner, err error) {
-	// POST github api
+	// GET github api
 	req, err := http.NewRequest("GET", "https://api.github.com/user", nil)
 	if err != nil {
 		return Owner{}, err
@@ -39,6 +39,11 @@ func (g *Application) GetOwner(token string) (o Owner, err error) {
 		return Owner{}, err
 	}
 
+	// Check status code
+	if res.StatusCode != http.StatusOK {
+		return Owner{}, errors.New(string(bodyBytes))
+	}
+
 	// Unmarshal response body
 	err = json.Unmarshal(bodyBytes, &o)
 	if err != nil {
@@ -56,7 +61,7 @@ type OwnerEmail struct {
 }
 
 func (g *Application) getOwnerEmails(token string) (emails []OwnerEmail, err error) {
-	// POST github api
+	// GET github api
 	req, err := http.NewRequest("GET", "https://api.github.com/user/emails", nil)
 	if err != nil {
 		return nil, err
@@ -69,15 +74,15 @@ func (g *Application) getOwnerEmails(token string) (emails []OwnerEmail, err err
 	}
 	defer res.Body.Close()
 
-	// Check status code
-	if res.StatusCode != http.StatusOK {
-		return nil, err
-	}
-
 	// Read response body
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
+	}
+
+	// Check status code
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.New(string(bodyBytes))
 	}
 
 	// Unmarshal response body

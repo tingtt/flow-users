@@ -22,7 +22,7 @@ type ResponseVerifyCredential struct {
 }
 
 func (t *Application) GetOwner(token string) (Owner, error) {
-	// POST twitter api
+	// GET twitter api
 	req, err := http.NewRequest("GET", "https://api.twitter.com/2/users/me", nil)
 	if err != nil {
 		return Owner{}, errors.New("failed to get owner informations")
@@ -41,6 +41,11 @@ func (t *Application) GetOwner(token string) (Owner, error) {
 		return Owner{}, errors.New("failed to read body of response from twitter api")
 	}
 
+	// Check status code
+	if res.StatusCode != 200 {
+		return Owner{}, errors.New(string(bodyBytes))
+	}
+
 	// Unmarshal response body
 	var resBody ResponseMe
 	err = json.Unmarshal(bodyBytes, &resBody)
@@ -52,7 +57,7 @@ func (t *Application) GetOwner(token string) (Owner, error) {
 }
 
 func (t *Application) GetOwnerEmail(token string) (string, error) {
-	// POST twitter api
+	// GET twitter api
 	req, err := http.NewRequest("GET", "https://api.twitter.com/1.1/account/verify_credentials.json", nil)
 	if err != nil {
 		return "", errors.New("failed to get owner informations")
@@ -68,15 +73,15 @@ func (t *Application) GetOwnerEmail(token string) (string, error) {
 	}
 	defer res.Body.Close()
 
-	// Check status code
-	if res.StatusCode != http.StatusOK {
-		return "", errors.New("failed to get owner informations")
-	}
-
 	// Read response body
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
 		return "", errors.New("failed to read body of response from twitter api")
+	}
+
+	// Check status code
+	if res.StatusCode != http.StatusOK {
+		return "", errors.New("failed to get owner informations")
 	}
 
 	// Unmarshal response body

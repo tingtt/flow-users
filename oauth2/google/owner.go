@@ -15,7 +15,7 @@ type Owner struct {
 }
 
 func (g *Application) GetOwner(token string) (o Owner, err error) {
-	// POST twitter api
+	// GET google api
 	req, err := http.NewRequest("GET", "https://www.googleapis.com/oauth2/v2/userinfo", nil)
 	if err != nil {
 		return Owner{}, errors.New("failed to get owner informations")
@@ -32,13 +32,18 @@ func (g *Application) GetOwner(token string) (o Owner, err error) {
 	// Read response body
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
-		return Owner{}, errors.New("failed to read body of response from twitter api")
+		return Owner{}, errors.New("failed to read body of response from google api")
+	}
+
+	// Check status code
+	if res.StatusCode != http.StatusOK {
+		return Owner{}, errors.New(string(bodyBytes))
 	}
 
 	// Unmarshal response body
 	err = json.Unmarshal(bodyBytes, &o)
 	if err != nil {
-		return Owner{}, errors.New("failed to read body of response from twitter api")
+		return Owner{}, errors.New("failed to read body of response from google api")
 	}
 
 	return o, nil
