@@ -6,7 +6,7 @@ import (
 
 type OAuth2 struct {
 	AccessToken string
-	OwnerId     string
+	OwnerId     uint64
 }
 
 func Get(user_id uint64) (o OAuth2, notFound bool, err error) {
@@ -29,7 +29,7 @@ func Get(user_id uint64) (o OAuth2, notFound bool, err error) {
 
 	var (
 		access_token string
-		owner_id     string
+		owner_id     uint64
 	)
 	if !rows.Next() {
 		// Not found

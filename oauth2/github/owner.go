@@ -10,7 +10,7 @@ import (
 
 type Owner struct {
 	Name      string `json:"login"`
-	Id        string `json:"id"`
+	Id        uint64 `json:"id"`
 	AvatarUrl string `json:"avatar_url"`
 }
 
@@ -36,13 +36,13 @@ func (g *Application) GetOwner(token string) (o Owner, err error) {
 	// Read response body
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
-		return Owner{}, errors.New("failed to read body of response from github api")
+		return Owner{}, err
 	}
 
 	// Unmarshal response body
 	err = json.Unmarshal(bodyBytes, &o)
 	if err != nil {
-		return Owner{}, errors.New("failed to read body of response from github api")
+		return Owner{}, err
 	}
 
 	return o, nil

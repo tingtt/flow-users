@@ -31,7 +31,7 @@ CREATE TABLE `github_oauth2_tokens` (
   `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` bigint UNSIGNED NOT NULL UNIQUE,
   `access_token` varchar(255) NOT NULL,
-  `owner_id` varchar(255) NOT NULL,
+  `owner_id` bigint UNSIGNED NOT NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
