@@ -7,6 +7,7 @@ import (
 	"flow-user/oauth2/github"
 	"flow-user/oauth2/google"
 	"flow-user/oauth2/twitter"
+	"flow-user/user"
 	"net/http"
 
 	jwtGo "github.com/dgrijalva/jwt-go"
@@ -32,11 +33,21 @@ type OAuth2TwitterPost struct {
 
 func connectOAuth2(c echo.Context) (err error) {
 	// Check token
-	u := c.Get("user").(*jwtGo.Token)
-	user_id, err := jwt.CheckToken(*jwtIssuer, u)
+	token := c.Get("user").(*jwtGo.Token)
+	user_id, err := jwt.CheckToken(*jwtIssuer, token)
 	if err != nil {
 		c.Logger().Debug(err)
 		return c.JSONPretty(http.StatusNotFound, map[string]string{"message": err.Error()}, "	")
+	}
+
+	// Get user
+	u, notFound, err := user.Get(user_id)
+	if err != nil {
+		c.Logger().Debug(err)
+		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+	}
+	if notFound {
+		return c.JSONPretty(http.StatusNotFound, map[string]string{"message": "user not found"}, "	")
 	}
 
 	// Privider
@@ -202,8 +213,21 @@ func connectOAuth2(c echo.Context) (err error) {
 			c.Logger().Debug(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
-
 	}
+
+	// Generate token
+	t, err := jwt.GenerateToken(user.UserPostResponse{Id: u.Id, Name: u.Name, Email: u.Email}, *jwtIssuer, *jwtSecret)
+	if err != nil {
+		c.Logger().Debug(err)
+		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+	}
+
+	// Set cookie
+	c.SetCookie(&http.Cookie{
+		Name:     "token",
+		Value:    t,
+		HttpOnly: true,
+	})
 
 	// 200: Success
 	return c.JSONPretty(http.StatusOK, map[string]string{"message": "Success"}, "	")

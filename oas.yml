@@ -115,6 +115,11 @@ paths:
       responses:
         200:
           description: Success
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: TOKEN=abcde12345; Path=/; HttpOnly
         401:
           description: Unauthorized
         500:
