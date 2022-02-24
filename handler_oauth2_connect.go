@@ -15,19 +15,17 @@ import (
 )
 
 type OAuth2GitHubPost struct {
-	AccessToken string `json:"access_token" validate:"require"`
+	AccessToken string `json:"access_token" validate:"required"`
 }
 
 type OAuth2GooglePost struct {
-	AccessToken  string `json:"access_token" validate:"require"`
-	ExpireIn     int64  `json:"expire_in" validate:"require"`
-	RefreshToken string `json:"refresh_token" validate:"require"`
+	AccessToken string `json:"access_token" validate:"required"`
 }
 
 type OAuth2TwitterPost struct {
-	AccessToken          string `json:"access_token" validate:"require"`
-	ExpireIn             int64  `json:"expire_in" validate:"require"`
-	RefreshToken         string `json:"refresh_token" validate:"require"`
+	AccessToken          string `json:"access_token" validate:"required"`
+	ExpireIn             int64  `json:"expire_in" validate:"required"`
+	RefreshToken         string `json:"refresh_token" validate:"required"`
 	RefreshTokenExpireIn int64  `json:"refresh_token_expire_in"`
 }
 
@@ -158,10 +156,8 @@ func connectOAuth2(c echo.Context) (err error) {
 		// Write to DB
 		_, err = google.Insert(
 			google.OAuth2{
-				AccessToken:  p.AccessToken,
-				ExpireIn:     p.ExpireIn,
-				RefreshToken: p.RefreshToken,
-				OwnerId:      o.Id,
+				AccessToken: p.AccessToken,
+				OwnerId:     o.Id,
 			},
 			user_id,
 		)

@@ -3,7 +3,6 @@ package main
 import (
 	"flow-user/jwt"
 	"flow-user/oauth2"
-	"flow-user/oauth2/google"
 	"flow-user/oauth2/twitter"
 	"net/http"
 
@@ -23,50 +22,6 @@ func refreshOAuth2Token(c echo.Context) (err error) {
 	// Privider
 	provider := c.Param("provider")
 	switch provider {
-	case oauth2.ProviderGoogle.String():
-		if *googleClientId == "" || *googleClientSecret == "" {
-			// 404: Not found
-			return echo.ErrNotFound
-		}
-
-		a, err := google.New(*googleClientId, *googleClientSecret)
-		if err != nil {
-			c.Logger().Debug(err)
-			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
-		}
-
-		// Read DB row
-		owner, notFound, err := google.Get(user_id)
-		if err != nil {
-			c.Logger().Debug(err)
-			return c.JSONPretty(http.StatusNotFound, map[string]string{"message": err.Error()}, "	")
-		}
-		if notFound {
-			return echo.ErrNotFound
-		}
-
-		// Refresh token
-		newOwner, err := a.RefreshToken(owner.RefreshToken)
-		if err != nil {
-			c.Logger().Debug(err)
-			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
-		}
-
-		// Update DB row
-		_, err = google.Insert(
-			google.OAuth2{
-				AccessToken:  newOwner.AccessToken,
-				ExpireIn:     newOwner.ExpireIn,
-				RefreshToken: newOwner.RefreshToken,
-				OwnerId:      owner.OwnerId,
-			},
-			user_id,
-		)
-		if err != nil {
-			c.Logger().Debug(err)
-			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
-		}
-
 	case oauth2.ProviderTwitter.String():
 		if *twitterClientId == "" || *twitterClientSecret == "" {
 			// 404: Not found

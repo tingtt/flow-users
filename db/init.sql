@@ -44,8 +44,6 @@ CREATE TABLE `google_oauth2_tokens` (
   `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` bigint UNSIGNED NOT NULL UNIQUE,
   `access_token` varchar(255) NOT NULL,
-  `access_token_expire_in` datetime NOT NULL,
-  `refresh_token` varchar(255) NOT NULL,
   `owner_id` varchar(255) NOT NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
