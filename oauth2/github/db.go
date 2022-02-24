@@ -1,7 +1,7 @@
 package github
 
 import (
-	"flow-user/mysql"
+	"flow-users/mysql"
 )
 
 type OAuth2 struct {

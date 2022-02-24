@@ -1,4 +1,4 @@
-module flow-user
+module flow-users
 
 go 1.17
 

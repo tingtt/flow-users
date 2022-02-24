@@ -3,11 +3,11 @@ START TRANSACTION;
 SET time_zone = "+00:00";
 
 --
--- Database: `flow-user`
+-- Database: `flow-users`
 --
 
-CREATE DATABASE IF NOT EXISTS `flow-user` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE `flow-user`;
+CREATE DATABASE IF NOT EXISTS `flow-users` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `flow-users`;
 
 -- --------------------------------------------------------
 

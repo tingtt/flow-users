@@ -1,7 +1,7 @@
 package main
 
 import (
-	"flow-user/jwt"
+	"flow-users/jwt"
 	"net/http"
 
 	jwtGo "github.com/dgrijalva/jwt-go"

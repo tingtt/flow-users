@@ -2,7 +2,7 @@ package jwt
 
 import (
 	"errors"
-	"flow-user/user"
+	"flow-users/user"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"

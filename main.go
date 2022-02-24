@@ -2,11 +2,11 @@ package main
 
 import (
 	"flag"
-	"flow-user/jwt"
-	"flow-user/mysql"
-	"flow-user/oauth2/github"
-	"flow-user/oauth2/google"
-	"flow-user/oauth2/twitter"
+	"flow-users/jwt"
+	"flow-users/mysql"
+	"flow-users/oauth2/github"
+	"flow-users/oauth2/google"
+	"flow-users/oauth2/twitter"
 	"fmt"
 	"net/http"
 	"os"
@@ -43,10 +43,10 @@ var (
 	mysqlHost = flag.String("mysql-host", getEnv("MYSQL_HOST", "db"), "MySQL host")
 	mysqlPort = flag.Int("mysql-port", getIntEnv("MYSQL_PORT", 3306), "MySQL port")
 	// mysqlProtocol = flag.String("mysql-protocol", getEnv("MYSQL_PROTOCOL", "tcp"), "MySQL protocol")
-	mysqlDB             = flag.String("mysql-database", getEnv("MYSQL_DATABASE", "flow-user"), "MySQL database")
-	mysqlUser           = flag.String("mysql-user", getEnv("MYSQL_USER", "flow-user"), "MySQL user")
+	mysqlDB             = flag.String("mysql-database", getEnv("MYSQL_DATABASE", "flow-users"), "MySQL database")
+	mysqlUser           = flag.String("mysql-user", getEnv("MYSQL_USER", "flow-users"), "MySQL user")
 	mysqlPasswd         = flag.String("mysql-password", getEnv("MYSQL_PASSWORD", "YcoA2WwZ"), "MySQL password")
-	jwtIssuer           = flag.String("jwt-issuer", getEnv("JWT_ISSUER", "flow-user"), "JWT issuer")
+	jwtIssuer           = flag.String("jwt-issuer", getEnv("JWT_ISSUER", "flow-users"), "JWT issuer")
 	jwtSecret           = flag.String("jwt-secret", getEnv("JWT_SECRET", "e0VzhtkQ"), "JWT secret")
 	githubClientId      = flag.String("github-client-id", getEnv("GITHUB_CLIENT_ID", ""), "GitHub client id")
 	githubClientSecret  = flag.String("github-client-secret", getEnv("GITHUB_CLIENT_SECRET", ""), "GitHub client secret")

@@ -1,7 +1,7 @@
 package user
 
 import (
-	"flow-user/mysql"
+	"flow-users/mysql"
 
 	"golang.org/x/crypto/bcrypt"
 )

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"flow-user/jwt"
-	"flow-user/oauth2"
-	"flow-user/oauth2/twitter"
+	"flow-users/jwt"
+	"flow-users/oauth2"
+	"flow-users/oauth2/twitter"
 	"net/http"
 
 	jwtGo "github.com/dgrijalva/jwt-go"

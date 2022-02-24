@@ -1,12 +1,12 @@
 package main
 
 import (
-	"flow-user/jwt"
-	"flow-user/oauth2"
-	"flow-user/oauth2/github"
-	"flow-user/oauth2/google"
-	"flow-user/oauth2/twitter"
-	"flow-user/user"
+	"flow-users/jwt"
+	"flow-users/oauth2"
+	"flow-users/oauth2/github"
+	"flow-users/oauth2/google"
+	"flow-users/oauth2/twitter"
+	"flow-users/user"
 	"net/http"
 
 	"github.com/labstack/echo"

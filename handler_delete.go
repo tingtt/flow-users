@@ -2,8 +2,8 @@ package main
 
 import (
 	"errors"
-	"flow-user/jwt"
-	"flow-user/user"
+	"flow-users/jwt"
+	"flow-users/user"
 	"net/http"
 
 	jwtGo "github.com/dgrijalva/jwt-go"

@@ -1,7 +1,7 @@
 package twitter
 
 import (
-	"flow-user/mysql"
+	"flow-users/mysql"
 	"time"
 )
 
