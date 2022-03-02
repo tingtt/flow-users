@@ -8,7 +8,6 @@ import (
 	"flow-users/oauth2/google"
 	"flow-users/oauth2/twitter"
 	"fmt"
-	"net/http"
 	"os"
 	"strconv"
 
@@ -62,7 +61,7 @@ type CustomValidator struct {
 func (cv *CustomValidator) Validate(i interface{}) error {
 	if err := cv.validator.Struct(i); err != nil {
 		// Optionally, you could return the error to give each route more control over the status code
-		return echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error())
+		return err
 	}
 	return nil
 }
