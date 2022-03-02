@@ -59,10 +59,10 @@ func postOverOAuth2(c echo.Context) (err error) {
 	}
 
 	// Check `Content-Type`
-	if c.Request().Header.Get("Content-Type") != "application/json" {
+	if c.Request().Header.Get("Content-Type") != "application/json" &&
+		c.Request().Header.Get("Content-Type") != "application/x-www-form-urlencoded" {
 		// 415: Invalid `Content-Type`
-		c.Logger().Debug(err)
-		return c.JSONPretty(http.StatusUnsupportedMediaType, map[string]string{"message": err.Error()}, "	")
+		return c.JSONPretty(http.StatusUnsupportedMediaType, map[string]string{"message": "unsupported media type"}, "	")
 	}
 
 	// Get owner info
