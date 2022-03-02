@@ -31,6 +31,6 @@ func delete(c echo.Context) (err error) {
 		return echo.ErrNotFound
 	}
 
-	// 200: Success
+	// 204: No content
 	return c.JSONPretty(http.StatusNoContent, map[string]string{"message": "Deleted"}, "	")
 }
