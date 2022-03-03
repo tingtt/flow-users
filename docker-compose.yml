@@ -9,8 +9,9 @@ services:
     volumes:
       - .:/go/src/app
     ports:
-      - 1323:1323
+      - $PORT:$PORT
     env_file:
+      - .env
       - mysql.env
       - param.env
     environment:

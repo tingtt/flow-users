@@ -7,7 +7,7 @@ WORKDIR ${ROOT}
 RUN apk update && apk add git
 COPY go.mod go.sum ./
 RUN go mod download
-EXPOSE 1323
+EXPOSE ${PORT}
 
 CMD ["go", "run", "."]
 
@@ -31,5 +31,5 @@ ENV ROOT=/go/src/app
 WORKDIR ${ROOT}
 COPY --from=builder ${ROOT}/binary ${ROOT}
 
-EXPOSE 1323
+EXPOSE ${PORT}
 CMD ["/go/src/app/binary"]
