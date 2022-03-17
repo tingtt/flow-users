@@ -211,7 +211,7 @@ func connectOAuth2(c echo.Context) (err error) {
 	}
 
 	// Generate token
-	t, err := jwt.GenerateToken(user.UserPostResponse{Id: u.Id, Name: u.Name, Email: u.Email}, *jwtIssuer, *jwtSecret)
+	t, err := jwt.GenerateToken(user.UserWithOutPassword{Id: u.Id, Name: u.Name, Email: u.Email}, *jwtIssuer, *jwtSecret)
 	if err != nil {
 		c.Logger().Debug(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")

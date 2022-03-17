@@ -57,7 +57,7 @@ func signIn(c echo.Context) (err error) {
 
 	// Generate token
 	t, err := jwt.GenerateToken(
-		user.UserPostResponse{Id: u.Id, Name: u.Name, Email: u.Email},
+		user.UserWithOutPassword{Id: u.Id, Name: u.Name, Email: u.Email},
 		*jwtIssuer,
 		*jwtSecret,
 	)

@@ -267,7 +267,7 @@ func postOverOAuth2(c echo.Context) (err error) {
 	}
 
 	// Generate token
-	t, err := jwt.GenerateToken(user.UserPostResponse{Id: u.Id, Name: name, Email: email}, *jwtIssuer, *jwtSecret)
+	t, err := jwt.GenerateToken(user.UserWithOutPassword{Id: u.Id, Name: name, Email: email}, *jwtIssuer, *jwtSecret)
 	if err != nil {
 		c.Logger().Debug(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
@@ -281,5 +281,5 @@ func postOverOAuth2(c echo.Context) (err error) {
 	})
 
 	// 200: Success
-	return c.JSONPretty(http.StatusOK, user.UserPostResponse{Id: u.Id, Name: name, Email: email}, "	")
+	return c.JSONPretty(http.StatusOK, user.UserWithOutPassword{Id: u.Id, Name: name, Email: email}, "	")
 }

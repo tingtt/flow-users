@@ -14,7 +14,7 @@ type JwtCustumClaims struct {
 	jwt.StandardClaims
 }
 
-func GenerateToken(user user.UserPostResponse, issuer string, secret string) (token string, err error) {
+func GenerateToken(user user.UserWithOutPassword, issuer string, secret string) (token string, err error) {
 	// Set custom claims
 	claims := &JwtCustumClaims{
 		user.Id,
