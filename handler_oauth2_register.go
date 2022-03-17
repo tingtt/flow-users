@@ -108,7 +108,7 @@ func postOverOAuth2(c echo.Context) (err error) {
 		email = e.Email
 
 		// Write to DB
-		u, invalidEmail, usedEmail, err := user.Insert(user.UserPost{Name: name, Email: email, Password: p.Password})
+		u, invalidEmail, usedEmail, err := user.Post(user.PostBody{Name: name, Email: email, Password: p.Password})
 		if err != nil {
 			c.Logger().Debug(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
@@ -168,7 +168,7 @@ func postOverOAuth2(c echo.Context) (err error) {
 		email = o.Email
 
 		// Write to DB
-		u, invalidEmail, usedEmail, err := user.Insert(user.UserPost{Name: name, Email: email, Password: p.Password})
+		u, invalidEmail, usedEmail, err := user.Post(user.PostBody{Name: name, Email: email, Password: p.Password})
 		if err != nil {
 			c.Logger().Debug(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
@@ -233,7 +233,7 @@ func postOverOAuth2(c echo.Context) (err error) {
 		}
 
 		// Write to DB
-		u, invalidEmail, usedEmail, err := user.Insert(user.UserPost{Name: name, Email: email, Password: p.Password})
+		u, invalidEmail, usedEmail, err := user.Post(user.PostBody{Name: name, Email: email, Password: p.Password})
 		if err != nil {
 			c.Logger().Debug(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")

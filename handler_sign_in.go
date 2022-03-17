@@ -18,7 +18,7 @@ func signIn(c echo.Context) (err error) {
 	}
 
 	// Bind request body
-	p := new(user.UserSignInPost)
+	p := new(user.VerifyPostBody)
 	if err = c.Bind(p); err != nil {
 		// 400: Bad request
 		c.Logger().Debug(err)

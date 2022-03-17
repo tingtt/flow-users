@@ -18,7 +18,7 @@ func post(c echo.Context) (err error) {
 	}
 
 	// Bind request body
-	p := new(user.UserPost)
+	p := new(user.PostBody)
 	if err = c.Bind(p); err != nil {
 		// 400: Bad request
 		c.Logger().Debug(err)
@@ -33,7 +33,7 @@ func post(c echo.Context) (err error) {
 	}
 
 	// Write to DB
-	u, invalidEmail, usedEmail, err := user.Insert(*p)
+	u, invalidEmail, usedEmail, err := user.Post(*p)
 	if err != nil {
 		c.Logger().Debug(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")

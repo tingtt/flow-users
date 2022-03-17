@@ -26,7 +26,7 @@ func patch(c echo.Context) (err error) {
 	}
 
 	// Bind request body
-	p := new(user.UserPatch)
+	p := new(user.PatchBody)
 	if err = c.Bind(p); err != nil {
 		// 400: Bad request
 		c.Logger().Debug(err)
@@ -41,7 +41,7 @@ func patch(c echo.Context) (err error) {
 	}
 
 	// Update DB row
-	u, invalidEmail, usedEmail, notFound, err := user.Update(user_id, *p)
+	u, invalidEmail, usedEmail, notFound, err := user.Patch(user_id, *p)
 	if err != nil {
 		c.Logger().Debug(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
