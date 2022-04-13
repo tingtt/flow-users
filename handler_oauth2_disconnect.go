@@ -1,0 +1,92 @@
+package main
+
+import (
+	"errors"
+	"flow-users/jwt"
+	"flow-users/oauth2"
+	"flow-users/oauth2/github"
+	"flow-users/oauth2/google"
+	"flow-users/oauth2/twitter"
+	"net/http"
+
+	jwtGo "github.com/dgrijalva/jwt-go"
+	"github.com/labstack/echo"
+)
+
+func disconnectOAuth2(c echo.Context) (err error) {
+	// Check token
+	token := c.Get("user").(*jwtGo.Token)
+	user_id, err := jwt.CheckToken(*jwtIssuer, token)
+	if err != nil {
+		c.Logger().Debug(err)
+		return c.JSONPretty(http.StatusNotFound, map[string]string{"message": err.Error()}, "	")
+	}
+
+	// Privider
+	provider := c.Param("provider")
+	switch provider {
+	case oauth2.ProviderGitHub.String():
+		if *githubClientId == "" || *githubClientSecret == "" {
+			// 404: Not found
+			return echo.ErrNotFound
+		}
+
+	case oauth2.ProviderGoogle.String():
+		if *googleClientId == "" || *googleClientSecret == "" {
+			// 404: Not found
+			return echo.ErrNotFound
+		}
+
+	case oauth2.ProviderTwitter.String():
+		if *twitterClientId == "" || *twitterClientSecret == "" {
+			// 404: Not found
+			return echo.ErrNotFound
+		}
+
+	default:
+		// 404: Not found
+		c.Logger().Debug(errors.New("provider not found"))
+		return echo.ErrNotFound
+	}
+
+	switch provider {
+	case "github":
+		// Write to DB
+		notFound, err := github.Delete(user_id)
+		if notFound {
+			c.Logger().Debug("GitHub OAuth2 connection not found")
+			return c.JSONPretty(http.StatusNotFound, map[string]string{"message": "GitHub OAuth2 connection not found"}, "	")
+		}
+		if err != nil {
+			c.Logger().Debug(err)
+			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+		}
+
+	case "google":
+		// Write to DB
+		notFound, err := google.Delete(user_id)
+		if notFound {
+			c.Logger().Debug("Google OAuth2 connection not found")
+			return c.JSONPretty(http.StatusNotFound, map[string]string{"message": "Google OAuth2 connection not found"}, "	")
+		}
+		if err != nil {
+			c.Logger().Debug(err)
+			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+		}
+
+	case "twitter":
+		// Write to DB
+		notFound, err := twitter.Delete(user_id)
+		if notFound {
+			c.Logger().Debug("Twitter OAuth2 connection not found")
+			return c.JSONPretty(http.StatusNotFound, map[string]string{"message": "Twitter OAuth2 connection not found"}, "	")
+		}
+		if err != nil {
+			c.Logger().Debug(err)
+			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+		}
+	}
+
+	// 204: No content
+	return c.JSONPretty(http.StatusNoContent, map[string]string{"message": "Deleted"}, "	")
+}

@@ -110,6 +110,7 @@ func main() {
 	e.DELETE("/", delete)
 	e.POST(":provider/connect", connectOAuth2)
 	e.POST(":provider/refresh", refreshOAuth2Token)
+	e.DELETE(":provider", disconnectOAuth2)
 	e.GET("id", getId)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", *port)))
