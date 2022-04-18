@@ -67,7 +67,7 @@ func GetByEmail(email string) (u User, notFound bool, err error) {
 	return
 }
 
-func GetWithoutPassword(id uint64) (u UserWithOutPassword, notFound bool, err error) {
+func GetWithoutPassword(id uint64) (u UserWithoutPassword, notFound bool, err error) {
 	db, err := mysql.Open()
 	if err != nil {
 		return

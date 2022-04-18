@@ -12,14 +12,8 @@ type PostBody struct {
 	Password string `json:"password" form:"password" validate:"required"`
 }
 
-type UserWithOutPassword struct {
-	Id    uint64 `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
-}
-
-func (post *PostBody) PostResponse(id uint64) UserWithOutPassword {
-	return UserWithOutPassword{
+func (post *PostBody) PostResponse(id uint64) UserWithoutPassword {
+	return UserWithoutPassword{
 		Id:    id,
 		Name:  post.Name,
 		Email: post.Email,

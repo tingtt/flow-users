@@ -13,7 +13,7 @@ type PatchBody struct {
 	Password *string `json:"password" form:"password" validate:"omitempty"`
 }
 
-func Patch(id uint64, new PatchBody) (r UserWithOutPassword, invalidEmail bool, usedEmail bool, notFound bool, err error) {
+func Patch(id uint64, new PatchBody) (r UserWithoutPassword, invalidEmail bool, usedEmail bool, notFound bool, err error) {
 	// Get old
 	old, notFound, err := Get(id)
 	if err != nil {
@@ -68,5 +68,5 @@ func Patch(id uint64, new PatchBody) (r UserWithOutPassword, invalidEmail bool, 
 		return
 	}
 
-	return UserWithOutPassword{id, *new.Name, *new.Email}, false, false, false, nil
+	return UserWithoutPassword{id, *new.Name, *new.Email}, false, false, false, nil
 }
