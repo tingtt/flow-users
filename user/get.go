@@ -66,3 +66,36 @@ func GetByEmail(email string) (u User, notFound bool, err error) {
 	u.Email = email
 	return
 }
+
+func GetWithoutPassword(id uint64) (u UserWithOutPassword, notFound bool, err error) {
+	db, err := mysql.Open()
+	if err != nil {
+		return
+	}
+	defer db.Close()
+
+	stmtOut, err := db.Prepare("SELECT name, email FROM users WHERE id = ?")
+	if err != nil {
+		return
+	}
+	defer stmtOut.Close()
+
+	rows, err := stmtOut.Query(id)
+	if err != nil {
+		return
+	}
+
+	if !rows.Next() {
+		// Not found
+		notFound = true
+		return
+	}
+
+	err = rows.Scan(&u.Name, &u.Email)
+	if err != nil {
+		return
+	}
+
+	u.Id = id
+	return
+}

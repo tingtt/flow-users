@@ -134,6 +134,7 @@ func main() {
 	e.POST("/sign_in", signIn)
 
 	// Restricted routes
+	e.GET("/", get)
 	e.PATCH("/", patch)
 	e.DELETE("/", delete)
 	e.POST(":provider/connect", connectOAuth2)
