@@ -18,6 +18,7 @@ services:
       TZ: UTC
     depends_on:
       - db
+    restart: unless-stopped
 
   db:
     image: mysql:8
@@ -37,6 +38,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: X2u6u3OK
       TZ: UTC
+    restart: unless-stopped
 
 volumes:
   mysql_data:
