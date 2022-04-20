@@ -33,8 +33,7 @@ func post(c echo.Context) (err error) {
 	}
 	if invalidEmail {
 		// 422: Unprocessable entity
-		c.Logger().Debug(err)
-		return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
+		return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": "invalid email"}, "	")
 	}
 	if usedEmail {
 		// 409: Conflict
