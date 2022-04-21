@@ -162,7 +162,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UserWithoutPassword"
+                $ref: "#/components/schemas/TokenBody"
         400:
           description: Invalid request
         415:
@@ -201,6 +201,11 @@ components:
       required:
         - email
         - password
+    TokenBody:
+      type: object
+      properties:
+        token:
+          type: string
     User:
       type: object
       properties:
