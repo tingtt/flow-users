@@ -12,23 +12,19 @@ info:
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
 
 security:
-  - cookieAuth: []
+  - Bearer: []
 
 tags: []
 
 paths:
   /:
     post:
+      security: []
       requestBody:
         $ref: "#/components/requestBodies/CreateUser"
       responses:
         201:
           description: Created
-          headers:
-            Set-Cookie:
-              schema:
-                type: string
-                example: TOKEN=abcde12345; Path=/; HttpOnly
           content:
             application/json:
               schema:
@@ -87,6 +83,7 @@ paths:
 
   /{oauth_providers}/register:
     post:
+      security: []
       parameters:
         - $ref: "#/components/parameters/oauth_providers"
       requestBody:
@@ -94,11 +91,6 @@ paths:
       responses:
         201:
           description: Created
-          headers:
-            Set-Cookie:
-              schema:
-                type: string
-                example: TOKEN=abcde12345; Path=/; HttpOnly
           content:
             application/json:
               schema:
@@ -115,11 +107,6 @@ paths:
       responses:
         200:
           description: Success
-          headers:
-            Set-Cookie:
-              schema:
-                type: string
-                example: TOKEN=abcde12345; Path=/; HttpOnly
         401:
           description: Unauthorized
         500:
@@ -127,6 +114,8 @@ paths:
 
   /{oauth_providers}/refresh:
     post:
+      parameters:
+        - $ref: "#/components/parameters/oauth_providers"
       responses:
         200:
           description: Success
@@ -154,11 +143,6 @@ paths:
       responses:
         200:
           description: Success
-          headers:
-            Set-Cookie:
-              schema:
-                type: string
-                example: TOKEN=abcde12345; Path=/; HttpOnly
           content:
             application/json:
               schema:
@@ -183,11 +167,6 @@ paths:
                 $ref: "#/components/schemas/UserId"
 
 components:
-  securitySchemes:
-    cookieAuth:
-      type: apiKey
-      in: cookie
-      name: TOKEN
   schemas:
     LoginBody:
       type: object
@@ -341,3 +320,9 @@ components:
           - github
           - google
           - twitter
+
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      description: Credentials or access token for API
