@@ -9,10 +9,10 @@ services:
     volumes:
       - .:/go/src/app
     ports:
-      - ${PORT:-1324}:${PORT:-1324}
+      - ${PORT:-1323}:${PORT:-1323}
     environment:
       TZ: ${TZ:-UTC}
-      PORT: ${PORT:-1324}
+      PORT: ${PORT:-1323}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-flow-users}
       MYSQL_USER: ${MYSQL_USER:-flow-users}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
