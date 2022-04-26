@@ -9,13 +9,25 @@ services:
     volumes:
       - .:/go/src/app
     ports:
-      - $PORT:$PORT
-    env_file:
-      - .env
-      - mysql.env
-      - param.env
+      - ${PORT:-1324}:${PORT:-1324}
     environment:
-      TZ: UTC
+      TZ: ${TZ:-UTC}
+      PORT: ${PORT:-1324}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-flow-users}
+      MYSQL_USER: ${MYSQL_USER:-flow-users}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      LOG_LEVEL: ${LOG_LEVEL:-2}
+      GZIP_LEVEL: ${GZIP_LEVEL:-6}
+      MYSQL_HOST: ${MYSQL_HOST:-db}
+      MYSQL_PORT: ${MYSQL_PORT:-3306}
+      JWT_ISSUER: ${JWT_ISSUER:-flow-users}
+      JWT_SECRET: ${JWT_SECRET}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      TWITTER_CLIENT_ID: ${TWITTER_CLIENT_ID}
+      TWITTER_CLIENT_SECRET: ${TWITTER_CLIENT_SECRET}
     depends_on:
       - db
     restart: unless-stopped
@@ -33,11 +45,12 @@ services:
       - mysql_data:/var/lib/mysql
     ports:
       - 3306
-    env_file:
-      - mysql.env
     environment:
-      MYSQL_ROOT_PASSWORD: X2u6u3OK
-      TZ: UTC
+      TZ: ${TZ:-UTC}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-flow-users}
+      MYSQL_USER: ${MYSQL_USER:-flow-users}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     restart: unless-stopped
 
 volumes:
