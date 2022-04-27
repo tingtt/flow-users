@@ -53,6 +53,7 @@ func GetByEmail(email string) (u User, notFound bool, err error) {
 	if err != nil {
 		return
 	}
+	defer rows.Close()
 
 	if !rows.Next() {
 		// Not found
@@ -85,6 +86,7 @@ func GetWithoutPassword(id uint64) (u UserWithoutPassword, notFound bool, err er
 	if err != nil {
 		return
 	}
+	defer rows.Close()
 
 	if !rows.Next() {
 		// Not found

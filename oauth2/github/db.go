@@ -26,6 +26,7 @@ func Get(user_id uint64) (o OAuth2, notFound bool, err error) {
 	if err != nil {
 		return OAuth2{}, false, err
 	}
+	defer rows.Close()
 
 	var (
 		access_token string
