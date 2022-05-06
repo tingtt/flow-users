@@ -34,7 +34,7 @@ func signIn(c echo.Context) (err error) {
 	if notFound {
 		// Incorrect email
 		// 404: Not found
-		return echo.ErrNotFound
+		return c.JSONPretty(http.StatusNotFound, map[string]string{"message": "user not found"}, "	")
 	}
 	verify, err := u.Verify(p.Password)
 	if err != nil && err != bcrypt.ErrMismatchedHashAndPassword {
