@@ -91,6 +91,7 @@ func logFormat() string {
 }
 
 func main() {
+	flag.Parse()
 	e := echo.New()
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
 		Level: *gzipLevel,
