@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"flow-users/jwt"
 	"flow-users/user"
@@ -55,6 +56,19 @@ func post(c echo.Context) (err error) {
 		HttpOnly: true,
 	})
 
+	// jsonにjwtトークンを追加
+	b, err := json.Marshal(p.PostResponse(u.Id))
+	if err != nil {
+		c.Logger().Fatal(err)
+		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+	}
+	m := map[string]interface{}{"token": t}
+	err = json.Unmarshal(b, &m)
+	if err != nil {
+		c.Logger().Fatal(err)
+		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+	}
+
 	// 200: Success
-	return c.JSONPretty(http.StatusOK, p.PostResponse(u.Id), "	")
+	return c.JSONPretty(http.StatusOK, m, "	")
 }

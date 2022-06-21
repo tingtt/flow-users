@@ -28,7 +28,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UserWithoutPassword"
+                $ref: "#/components/schemas/UserWithToken"
         400:
           description: Invalid request
         415:
@@ -60,7 +60,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UserWithoutPassword"
+                $ref: "#/components/schemas/User"
         400:
           description: Invalid request
         404:
@@ -94,7 +94,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UserWithoutPassword"
+                $ref: "#/components/schemas/User"
         500:
           description: Internal server error
 
@@ -180,11 +180,13 @@ components:
       required:
         - email
         - password
+
     TokenBody:
       type: object
       properties:
         token:
           type: string
+
     User:
       type: object
       properties:
@@ -195,20 +197,29 @@ components:
         email:
           type: string
           format: email
-        password:
-          type: string
-          format: password
+      required:
+        - id
+        - name
+        - email
 
-    UserWithoutPassword:
+    UserWithToken:
       type: object
       properties:
         id:
-          type: integer
+          type: number
+          minimum: 1
         name:
           type: string
         email:
           type: string
           format: email
+        token:
+          type: string
+      required:
+        - id
+        - name
+        - email
+        - token
 
     CreateUserBody:
       type: object
@@ -278,6 +289,8 @@ components:
       properties:
         id:
           type: integer
+      required:
+        - id
 
   requestBodies:
     Login:
@@ -303,6 +316,7 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/OAuth2ConnectBody"
+
     CreateUserOverOauth2:
       content:
         application/json:
