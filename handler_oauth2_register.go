@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flow-users/jwt"
 	"flow-users/oauth2"
 	"flow-users/oauth2/github"
@@ -273,6 +274,19 @@ func postOverOAuth2(c echo.Context) (err error) {
 		HttpOnly: true,
 	})
 
+	// jsonにjwtトークンを追加
+	b, err := json.Marshal(user.UserWithoutPassword{Id: u.Id, Name: name, Email: email})
+	if err != nil {
+		c.Logger().Fatal(err)
+		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+	}
+	m := map[string]interface{}{"token": t}
+	err = json.Unmarshal(b, &m)
+	if err != nil {
+		c.Logger().Fatal(err)
+		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+	}
+
 	// 200: Success
-	return c.JSONPretty(http.StatusOK, user.UserWithoutPassword{Id: u.Id, Name: name, Email: email}, "	")
+	return c.JSONPretty(http.StatusOK, m, "	")
 }
