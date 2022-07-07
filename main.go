@@ -8,6 +8,7 @@ import (
 	"flow-users/oauth2/google"
 	"flow-users/oauth2/twitter"
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
 
@@ -105,31 +106,44 @@ func main() {
 
 	// Setup db client instance
 	e.Logger.Info(mysql.SetDSNTCP(*mysqlUser, *mysqlPasswd, *mysqlHost, *mysqlPort, *mysqlDB))
-
-	_, err := github.New(*githubClientId, *githubClientSecret)
+	// Check connection
+	d, err := mysql.Open()
 	if err != nil {
-		e.Logger.Error(err.Error())
+		e.Logger.Fatal(err)
 	}
-	_, err = google.New(*googleClientId, *googleClientSecret)
-	if err != nil {
-		e.Logger.Error(err.Error())
-	}
-	_, err = twitter.New(*twitterClientId, *twitterClientSecret)
-	if err != nil {
-		e.Logger.Error(err.Error())
+	if err = d.Ping(); err != nil {
+		e.Logger.Fatal(err)
 	}
 
+	// Setup OAuth2 prividers
+	if _, err := github.New(*githubClientId, *githubClientSecret); err != nil {
+		e.Logger.Error(err.Error())
+	}
+	if _, err := google.New(*googleClientId, *googleClientSecret); err != nil {
+		e.Logger.Error(err.Error())
+	}
+	if _, err := twitter.New(*twitterClientId, *twitterClientSecret); err != nil {
+		e.Logger.Error(err.Error())
+	}
+
+	// Setup JWT
 	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		Claims:     &jwt.JwtCustumClaims{},
 		SigningKey: []byte(*jwtSecret),
 		Skipper: func(c echo.Context) bool {
-			return c.Path() == "/" && c.Request().Method == "POST" ||
+			return c.Path() == "/-/readiness" ||
+				c.Path() == "/" && c.Request().Method == "POST" ||
 				c.Path() == "/:provider/register" ||
 				c.Path() == "/sign_in"
 		},
 	}))
 
-	// Opened routes
+	// Health check route
+	e.GET("/-/readiness", func(c echo.Context) error {
+		return c.String(http.StatusOK, "flow-users is Healthy.")
+	})
+
+	// Published routes
 	e.POST("/", post)
 	e.POST("/:provider/register", postOverOAuth2)
 	e.POST("/sign_in", signIn)
