@@ -55,7 +55,7 @@ func postOverOAuth2(c echo.Context) (err error) {
 
 	default:
 		// 404: Not found
-		c.Logger().Debug(err)
+		c.Logger().Debugf("provider '%s' not found", provider)
 		return echo.ErrNotFound
 	}
 
@@ -84,19 +84,19 @@ func postOverOAuth2(c echo.Context) (err error) {
 		// Get owner info
 		a, err := github.New(*githubClientId, *githubClientSecret)
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 		o, err := a.GetOwner(p.AccessToken)
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 		name = o.Name
 
 		e, err := a.GetOwnerPrimaryEmail(p.AccessToken)
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 		email = e.Email
@@ -104,18 +104,18 @@ func postOverOAuth2(c echo.Context) (err error) {
 		// Write to DB
 		u, invalidEmail, usedEmail, err := user.Post(user.PostBody{Name: name, Email: email, Password: p.Password})
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 		if invalidEmail {
 			// 422: Unprocessable entity
-			c.Logger().Debug(err)
-			return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
+			c.Logger().Debug("invalid email")
+			return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": "invalid email"}, "	")
 		}
 		if usedEmail {
-			// 409: Conflict
+			// 400: Bad request
 			c.Logger().Debug("email already used")
-			return c.JSONPretty(http.StatusConflict, map[string]string{"message": "email already used"}, "	")
+			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": "email already used"}, "	")
 		}
 
 		// Write to DB
@@ -127,7 +127,7 @@ func postOverOAuth2(c echo.Context) (err error) {
 			u.Id,
 		)
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 
@@ -150,12 +150,12 @@ func postOverOAuth2(c echo.Context) (err error) {
 		// Get owner info
 		a, err := google.New(*googleClientId, *googleClientSecret)
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 		o, err := a.GetOwner(p.AccessToken)
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 		name = o.Name
@@ -164,18 +164,18 @@ func postOverOAuth2(c echo.Context) (err error) {
 		// Write to DB
 		u, invalidEmail, usedEmail, err := user.Post(user.PostBody{Name: name, Email: email, Password: p.Password})
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 		if invalidEmail {
 			// 422: Unprocessable entity
-			c.Logger().Debug(err)
-			return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
+			c.Logger().Debug("invalid email")
+			return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": "invalid email"}, "	")
 		}
 		if usedEmail {
-			// 409: Conflict
+			// 400: Bad request
 			c.Logger().Debug("email already used")
-			return c.JSONPretty(http.StatusConflict, map[string]string{"message": "email already used"}, "	")
+			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": "email already used"}, "	")
 		}
 
 		// Write to DB
@@ -187,7 +187,7 @@ func postOverOAuth2(c echo.Context) (err error) {
 			u.Id,
 		)
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 
@@ -210,37 +210,37 @@ func postOverOAuth2(c echo.Context) (err error) {
 		// Get owner info
 		a, err := twitter.New(*googleClientId, *googleClientSecret)
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 		o, err := a.GetOwner(p.AccessToken)
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 		name = o.UserName
 
 		email, err = a.GetOwnerEmail(p.AccessToken)
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 
 		// Write to DB
 		u, invalidEmail, usedEmail, err := user.Post(user.PostBody{Name: name, Email: email, Password: p.Password})
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 		if invalidEmail {
 			// 422: Unprocessable entity
-			c.Logger().Debug(err)
-			return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
+			c.Logger().Debug("invalid email")
+			return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": "invalid email"}, "	")
 		}
 		if usedEmail {
-			// 409: Conflict
+			// 400: Bad request
 			c.Logger().Debug("email already used")
-			return c.JSONPretty(http.StatusConflict, map[string]string{"message": "email already used"}, "	")
+			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": "email already used"}, "	")
 		}
 
 		// Write to DB
@@ -255,7 +255,7 @@ func postOverOAuth2(c echo.Context) (err error) {
 			u.Id,
 		)
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 	}
@@ -263,7 +263,7 @@ func postOverOAuth2(c echo.Context) (err error) {
 	// Generate token
 	t, err := jwt.GenerateToken(user.UserWithoutPassword{Id: u.Id, Name: name, Email: email}, *jwtIssuer, *jwtSecret)
 	if err != nil {
-		c.Logger().Debug(err)
+		c.Logger().Error(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 	}
 
@@ -277,13 +277,13 @@ func postOverOAuth2(c echo.Context) (err error) {
 	// jsonにjwtトークンを追加
 	b, err := json.Marshal(user.UserWithoutPassword{Id: u.Id, Name: name, Email: email})
 	if err != nil {
-		c.Logger().Fatal(err)
+		c.Logger().Error(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 	}
 	m := map[string]interface{}{"token": t}
 	err = json.Unmarshal(b, &m)
 	if err != nil {
-		c.Logger().Fatal(err)
+		c.Logger().Error(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 	}
 

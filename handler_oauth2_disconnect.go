@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"flow-users/jwt"
 	"flow-users/oauth2"
 	"flow-users/oauth2/github"
@@ -45,7 +44,7 @@ func disconnectOAuth2(c echo.Context) (err error) {
 
 	default:
 		// 404: Not found
-		c.Logger().Debug(errors.New("provider not found"))
+		c.Logger().Debugf("provider '%s' not found", provider)
 		return echo.ErrNotFound
 	}
 
@@ -53,37 +52,37 @@ func disconnectOAuth2(c echo.Context) (err error) {
 	case "github":
 		// Write to DB
 		notFound, err := github.Delete(user_id)
+		if err != nil {
+			c.Logger().Error(err)
+			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+		}
 		if notFound {
 			c.Logger().Debug("GitHub OAuth2 connection not found")
 			return c.JSONPretty(http.StatusNotFound, map[string]string{"message": "GitHub OAuth2 connection not found"}, "	")
-		}
-		if err != nil {
-			c.Logger().Debug(err)
-			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 
 	case "google":
 		// Write to DB
 		notFound, err := google.Delete(user_id)
+		if err != nil {
+			c.Logger().Error(err)
+			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+		}
 		if notFound {
 			c.Logger().Debug("Google OAuth2 connection not found")
 			return c.JSONPretty(http.StatusNotFound, map[string]string{"message": "Google OAuth2 connection not found"}, "	")
-		}
-		if err != nil {
-			c.Logger().Debug(err)
-			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 
 	case "twitter":
 		// Write to DB
 		notFound, err := twitter.Delete(user_id)
+		if err != nil {
+			c.Logger().Error(err)
+			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+		}
 		if notFound {
 			c.Logger().Debug("Twitter OAuth2 connection not found")
 			return c.JSONPretty(http.StatusNotFound, map[string]string{"message": "Twitter OAuth2 connection not found"}, "	")
-		}
-		if err != nil {
-			c.Logger().Debug(err)
-			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 	}
 

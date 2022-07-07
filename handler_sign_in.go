@@ -28,7 +28,7 @@ func signIn(c echo.Context) (err error) {
 	// Get user by email and compare password
 	u, notFound, err := user.GetByEmail(p.Email)
 	if err != nil {
-		c.Logger().Debug(err)
+		c.Logger().Error(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 	}
 	if notFound {
@@ -38,7 +38,7 @@ func signIn(c echo.Context) (err error) {
 	}
 	verify, err := u.Verify(p.Password)
 	if err != nil && err != bcrypt.ErrMismatchedHashAndPassword {
-		c.Logger().Debug(err)
+		c.Logger().Error(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 	}
 	if !verify {
@@ -55,7 +55,7 @@ func signIn(c echo.Context) (err error) {
 		*jwtSecret,
 	)
 	if err != nil {
-		c.Logger().Debug(err)
+		c.Logger().Error(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 	}
 

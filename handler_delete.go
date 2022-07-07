@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"flow-users/jwt"
 	"flow-users/user"
 	"net/http"
@@ -22,12 +21,12 @@ func delete(c echo.Context) (err error) {
 	// Delete DB row
 	notFound, err := user.Delete(id)
 	if err != nil {
-		c.Logger().Debug(err)
+		c.Logger().Error(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 	}
 	if notFound {
 		// 404: Not found
-		c.Logger().Debug(errors.New("user not found"))
+		c.Logger().Debug("user not found")
 		return echo.ErrNotFound
 	}
 

@@ -30,14 +30,14 @@ func refreshOAuth2Token(c echo.Context) (err error) {
 
 		a, err := twitter.New(*twitterClientId, *twitterClientSecret)
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 
 		// Read DB row
 		owner, notFound, err := twitter.Get(user_id)
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusNotFound, map[string]string{"message": err.Error()}, "	")
 		}
 		if notFound {
@@ -47,7 +47,7 @@ func refreshOAuth2Token(c echo.Context) (err error) {
 		// Refresh token
 		newOwner, err := a.RefreshToken(owner.RefreshToken)
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 
@@ -63,7 +63,7 @@ func refreshOAuth2Token(c echo.Context) (err error) {
 			user_id,
 		)
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 

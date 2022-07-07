@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"flow-users/jwt"
 	"flow-users/oauth2"
 	"flow-users/oauth2/github"
@@ -41,7 +40,7 @@ func connectOAuth2(c echo.Context) (err error) {
 	// Get user
 	u, notFound, err := user.Get(user_id)
 	if err != nil {
-		c.Logger().Debug(err)
+		c.Logger().Error(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 	}
 	if notFound {
@@ -71,7 +70,7 @@ func connectOAuth2(c echo.Context) (err error) {
 
 	default:
 		// 404: Not found
-		c.Logger().Debug(errors.New("provider not found"))
+		c.Logger().Debug("provider not found")
 		return echo.ErrNotFound
 	}
 
@@ -95,12 +94,12 @@ func connectOAuth2(c echo.Context) (err error) {
 		// Get owner info
 		a, err := github.New(*githubClientId, *githubClientSecret)
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 		o, err := a.GetOwner(p.AccessToken)
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 
@@ -113,7 +112,7 @@ func connectOAuth2(c echo.Context) (err error) {
 			user_id,
 		)
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 
@@ -136,12 +135,12 @@ func connectOAuth2(c echo.Context) (err error) {
 		// Get owner info
 		a, err := google.New(*googleClientId, *googleClientSecret)
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 		o, err := a.GetOwner(p.AccessToken)
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 
@@ -154,7 +153,7 @@ func connectOAuth2(c echo.Context) (err error) {
 			user_id,
 		)
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 
@@ -177,12 +176,12 @@ func connectOAuth2(c echo.Context) (err error) {
 		// Get owner info
 		a, err := twitter.New(*twitterClientId, *twitterClientSecret)
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 		o, err := a.GetOwner(p.AccessToken)
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 
@@ -198,7 +197,7 @@ func connectOAuth2(c echo.Context) (err error) {
 			user_id,
 		)
 		if err != nil {
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 	}
@@ -206,7 +205,7 @@ func connectOAuth2(c echo.Context) (err error) {
 	// Generate token
 	t, err := jwt.GenerateToken(user.UserWithoutPassword{Id: u.Id, Name: u.Name, Email: u.Email}, *jwtIssuer, *jwtSecret)
 	if err != nil {
-		c.Logger().Debug(err)
+		c.Logger().Error(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 	}
 
