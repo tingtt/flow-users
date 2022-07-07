@@ -57,5 +57,4 @@ deploy-job:
     - mkdir db/log -p
     - chmod -R 777 db/log
   script:
-    - sudo docker-compose build web
-    - sudo docker-compose up -d
+    - docker-compose up -d --build --force-recreate
