@@ -1,6 +1,7 @@
-package main
+package handler
 
 import (
+	"encoding/json"
 	"flow-users/flags"
 	"flow-users/jwt"
 	"flow-users/oauth2"
@@ -10,44 +11,28 @@ import (
 	"flow-users/user"
 	"net/http"
 
-	jwtGo "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 )
 
-type OAuth2GitHubPost struct {
+type UserPostOverGitHubOAuth2 struct {
 	AccessToken string `json:"access_token" validate:"required"`
+	Password    string `json:"password" validate:"required"`
 }
 
-type OAuth2GooglePost struct {
+type UserPostOverGoogleOAuth2 struct {
 	AccessToken string `json:"access_token" validate:"required"`
+	Password    string `json:"password" validate:"required"`
 }
 
-type OAuth2TwitterPost struct {
+type UserPostOverTwitterOAuth2 struct {
 	AccessToken          string `json:"access_token" validate:"required"`
 	ExpireIn             int64  `json:"expire_in" validate:"required"`
 	RefreshToken         string `json:"refresh_token" validate:"required"`
-	RefreshTokenExpireIn int64  `json:"refresh_token_expire_in"`
+	RefreshTokenExpireIn int64  `json:"refresh_token_expire_in" validate:"required"`
+	Password             string `json:"password" validate:"required"`
 }
 
-func connectOAuth2(c echo.Context) (err error) {
-	// Check token
-	token := c.Get("user").(*jwtGo.Token)
-	user_id, err := jwt.CheckToken(*flags.Get().JwtIssuer, token)
-	if err != nil {
-		c.Logger().Debug(err)
-		return c.JSONPretty(http.StatusNotFound, map[string]string{"message": err.Error()}, "	")
-	}
-
-	// Get user
-	u, notFound, err := user.Get(user_id)
-	if err != nil {
-		c.Logger().Error(err)
-		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
-	}
-	if notFound {
-		return c.JSONPretty(http.StatusNotFound, map[string]string{"message": "user not found"}, "	")
-	}
-
+func PostOverOAuth2(c echo.Context) (err error) {
 	// Privider
 	provider := c.Param("provider")
 	switch provider {
@@ -71,14 +56,19 @@ func connectOAuth2(c echo.Context) (err error) {
 
 	default:
 		// 404: Not found
-		c.Logger().Debug("provider not found")
+		c.Logger().Debugf("provider '%s' not found", provider)
 		return echo.ErrNotFound
 	}
+
+	// Get owner info
+	var u user.User
+	var name string
+	var email string
 
 	switch provider {
 	case "github":
 		// Bind request body
-		p := new(OAuth2GitHubPost)
+		p := new(UserPostOverGitHubOAuth2)
 		if err = c.Bind(p); err != nil {
 			// 400: Bad request
 			c.Logger().Debug(err)
@@ -103,6 +93,31 @@ func connectOAuth2(c echo.Context) (err error) {
 			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
+		name = o.Name
+
+		e, err := a.GetOwnerPrimaryEmail(p.AccessToken)
+		if err != nil {
+			c.Logger().Error(err)
+			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+		}
+		email = e.Email
+
+		// Write to DB
+		u, invalidEmail, usedEmail, err := user.Post(user.PostBody{Name: name, Email: email, Password: p.Password})
+		if err != nil {
+			c.Logger().Error(err)
+			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+		}
+		if invalidEmail {
+			// 422: Unprocessable entity
+			c.Logger().Debug("invalid email")
+			return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": "invalid email"}, "	")
+		}
+		if usedEmail {
+			// 400: Bad request
+			c.Logger().Debug("email already used")
+			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": "email already used"}, "	")
+		}
 
 		// Write to DB
 		_, err = github.Insert(
@@ -110,7 +125,7 @@ func connectOAuth2(c echo.Context) (err error) {
 				AccessToken: p.AccessToken,
 				OwnerId:     o.Id,
 			},
-			user_id,
+			u.Id,
 		)
 		if err != nil {
 			c.Logger().Error(err)
@@ -119,7 +134,7 @@ func connectOAuth2(c echo.Context) (err error) {
 
 	case "google":
 		// Bind request body
-		p := new(OAuth2GooglePost)
+		p := new(UserPostOverGoogleOAuth2)
 		if err = c.Bind(p); err != nil {
 			// 400: Bad request
 			c.Logger().Debug(err)
@@ -144,6 +159,25 @@ func connectOAuth2(c echo.Context) (err error) {
 			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
+		name = o.Name
+		email = o.Email
+
+		// Write to DB
+		u, invalidEmail, usedEmail, err := user.Post(user.PostBody{Name: name, Email: email, Password: p.Password})
+		if err != nil {
+			c.Logger().Error(err)
+			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+		}
+		if invalidEmail {
+			// 422: Unprocessable entity
+			c.Logger().Debug("invalid email")
+			return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": "invalid email"}, "	")
+		}
+		if usedEmail {
+			// 400: Bad request
+			c.Logger().Debug("email already used")
+			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": "email already used"}, "	")
+		}
 
 		// Write to DB
 		_, err = google.Insert(
@@ -151,7 +185,7 @@ func connectOAuth2(c echo.Context) (err error) {
 				AccessToken: p.AccessToken,
 				OwnerId:     o.Id,
 			},
-			user_id,
+			u.Id,
 		)
 		if err != nil {
 			c.Logger().Error(err)
@@ -160,7 +194,7 @@ func connectOAuth2(c echo.Context) (err error) {
 
 	case "twitter":
 		// Bind request body
-		p := new(OAuth2TwitterPost)
+		p := new(UserPostOverTwitterOAuth2)
 		if err = c.Bind(p); err != nil {
 			// 400: Bad request
 			c.Logger().Debug(err)
@@ -175,7 +209,7 @@ func connectOAuth2(c echo.Context) (err error) {
 		}
 
 		// Get owner info
-		a, err := twitter.New(*flags.Get().TwitterClientId, *flags.Get().TwitterClientSecret)
+		a, err := twitter.New(*flags.Get().GoogleClientId, *flags.Get().GoogleClientSecret)
 		if err != nil {
 			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
@@ -184,6 +218,30 @@ func connectOAuth2(c echo.Context) (err error) {
 		if err != nil {
 			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+		}
+		name = o.UserName
+
+		email, err = a.GetOwnerEmail(p.AccessToken)
+		if err != nil {
+			c.Logger().Error(err)
+			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+		}
+
+		// Write to DB
+		u, invalidEmail, usedEmail, err := user.Post(user.PostBody{Name: name, Email: email, Password: p.Password})
+		if err != nil {
+			c.Logger().Error(err)
+			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+		}
+		if invalidEmail {
+			// 422: Unprocessable entity
+			c.Logger().Debug("invalid email")
+			return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": "invalid email"}, "	")
+		}
+		if usedEmail {
+			// 400: Bad request
+			c.Logger().Debug("email already used")
+			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": "email already used"}, "	")
 		}
 
 		// Write to DB
@@ -195,7 +253,7 @@ func connectOAuth2(c echo.Context) (err error) {
 				RefreshTokenExpireIn: p.RefreshTokenExpireIn,
 				OwnerId:              o.Id,
 			},
-			user_id,
+			u.Id,
 		)
 		if err != nil {
 			c.Logger().Error(err)
@@ -204,7 +262,7 @@ func connectOAuth2(c echo.Context) (err error) {
 	}
 
 	// Generate token
-	t, err := jwt.GenerateToken(user.UserWithoutPassword{Id: u.Id, Name: u.Name, Email: u.Email}, *flags.Get().JwtIssuer, *flags.Get().JwtSecret)
+	t, err := jwt.GenerateToken(user.UserWithoutPassword{Id: u.Id, Name: name, Email: email}, *flags.Get().JwtIssuer, *flags.Get().JwtSecret)
 	if err != nil {
 		c.Logger().Error(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
@@ -217,6 +275,19 @@ func connectOAuth2(c echo.Context) (err error) {
 		HttpOnly: true,
 	})
 
+	// jsonにjwtトークンを追加
+	b, err := json.Marshal(user.UserWithoutPassword{Id: u.Id, Name: name, Email: email})
+	if err != nil {
+		c.Logger().Error(err)
+		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+	}
+	m := map[string]interface{}{"token": t}
+	err = json.Unmarshal(b, &m)
+	if err != nil {
+		c.Logger().Error(err)
+		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+	}
+
 	// 200: Success
-	return c.JSONPretty(http.StatusOK, map[string]string{"message": "Success"}, "	")
+	return c.JSONPretty(http.StatusOK, m, "	")
 }

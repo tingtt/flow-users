@@ -1,4 +1,4 @@
-package main
+package handler
 
 import (
 	"encoding/json"
@@ -10,7 +10,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-func post(c echo.Context) (err error) {
+func Post(c echo.Context) (err error) {
 	// Bind request body
 	p := new(user.PostBody)
 	if err = c.Bind(p); err != nil {

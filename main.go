@@ -2,6 +2,7 @@ package main
 
 import (
 	"flow-users/flags"
+	"flow-users/handler"
 	"flow-users/jwt"
 	"flow-users/mysql"
 	"flow-users/oauth2/github"
@@ -135,18 +136,18 @@ func main() {
 	})
 
 	// Published routes
-	e.POST("/", post)
-	e.POST("/:provider/register", postOverOAuth2)
-	e.POST("/sign_in", signIn)
+	e.POST("/", handler.Post)
+	e.POST("/:provider/register", handler.PostOverOAuth2)
+	e.POST("/sign_in", handler.SignIn)
 
 	// Restricted routes
-	e.GET("/", get)
-	e.PATCH("/", patch)
-	e.DELETE("/", delete)
-	e.POST(":provider/connect", connectOAuth2)
-	e.POST(":provider/refresh", refreshOAuth2Token)
-	e.DELETE(":provider", disconnectOAuth2)
-	e.GET("id", getId)
+	e.GET("/", handler.Get)
+	e.PATCH("/", handler.Patch)
+	e.DELETE("/", handler.Delete)
+	e.POST(":provider/connect", handler.ConnectOAuth2)
+	e.POST(":provider/refresh", handler.RefreshOAuth2Token)
+	e.DELETE(":provider", handler.DisconnectOAuth2)
+	e.GET("id", handler.GetId)
 
 	//
 	// Start echo

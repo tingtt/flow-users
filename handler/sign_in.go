@@ -1,4 +1,4 @@
-package main
+package handler
 
 import (
 	"flow-users/flags"
@@ -10,7 +10,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func signIn(c echo.Context) (err error) {
+func SignIn(c echo.Context) (err error) {
 	// Bind request body
 	p := new(user.VerifyPostBody)
 	if err = c.Bind(p); err != nil {

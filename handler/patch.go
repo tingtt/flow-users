@@ -1,4 +1,4 @@
-package main
+package handler
 
 import (
 	"flow-users/flags"
@@ -10,7 +10,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-func patch(c echo.Context) (err error) {
+func Patch(c echo.Context) (err error) {
 	// Check token
 	t := c.Get("user").(*jwtGo.Token)
 	user_id, err := jwt.CheckToken(*flags.Get().JwtIssuer, t)
