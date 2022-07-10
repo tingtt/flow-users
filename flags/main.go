@@ -4,10 +4,24 @@ import (
 	"flag"
 )
 
+type AllowOrigins []string
+
+// Implements from flag.Value
+func (i *AllowOrigins) String() string {
+	return "my string representation"
+}
+
+// Implements from flag.Value
+func (i *AllowOrigins) Set(v string) error {
+	*i = append(*i, v)
+	return nil
+}
+
 type Flags struct {
 	Port                *uint
 	LogLevel            *uint
 	GzipLevel           *uint
+	AllowOrigins        AllowOrigins
 	MysqlHost           *string
 	MysqlPort           *uint
 	MysqlDB             *string
@@ -38,6 +52,7 @@ func parse() Flags {
 		flag.Uint("port", getUintEnv("PORT", 1323), "Server port"),
 		flag.Uint("log-level", getUintEnv("LOG_LEVEL", 2), "Log level (1: 'DEBUG', 2: 'INFO', 3: 'WARN', 4: 'ERROR', 5: 'OFF', 6: 'PANIC', 7: 'FATAL'"),
 		flag.Uint("gzip-level", getUintEnv("GZIP_LEVEL", 6), "Gzip compression level"),
+		AllowOrigins{},
 		flag.String("mysql-host", getEnv("MYSQL_HOST", "db"), "MySQL host"),
 		flag.Uint("mysql-port", getUintEnv("MYSQL_PORT", 3306), "MySQL port"),
 		flag.String("mysql-database", getEnv("MYSQL_DATABASE", "flow-users"), "MySQL database"),
@@ -52,6 +67,7 @@ func parse() Flags {
 		flag.String("twitter-client-id", getEnv("TWITTER_CLIENT_ID", ""), "Twitter client id"),
 		flag.String("twitter-client-secret", getEnv("TWITTER_CLIENT_SECRET", ""), "Twitter client secret"),
 	}
+	flag.Var(&flags.AllowOrigins, "allow-origin", "CORS allow origins")
 
 	flag.Parse()
 	return flags
