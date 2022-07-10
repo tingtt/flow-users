@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flow-users/flags"
 	"flow-users/jwt"
 	"flow-users/user"
 	"net/http"
@@ -12,7 +13,7 @@ import (
 func get(c echo.Context) (err error) {
 	// Check token
 	u := c.Get("user").(*jwtGo.Token)
-	id, err := jwt.CheckToken(*jwtIssuer, u)
+	id, err := jwt.CheckToken(*flags.Get().JwtIssuer, u)
 	if err != nil {
 		c.Logger().Debug(err)
 		return c.JSONPretty(http.StatusUnauthorized, map[string]string{"message": err.Error()}, "	")

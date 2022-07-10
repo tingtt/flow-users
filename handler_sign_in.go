@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flow-users/flags"
 	"flow-users/jwt"
 	"flow-users/user"
 	"net/http"
@@ -51,8 +52,8 @@ func signIn(c echo.Context) (err error) {
 	// Generate token
 	t, err := jwt.GenerateToken(
 		user.UserWithoutPassword{Id: u.Id, Name: u.Name, Email: u.Email},
-		*jwtIssuer,
-		*jwtSecret,
+		*flags.Get().JwtIssuer,
+		*flags.Get().JwtSecret,
 	)
 	if err != nil {
 		c.Logger().Error(err)

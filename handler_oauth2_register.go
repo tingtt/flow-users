@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flow-users/flags"
 	"flow-users/jwt"
 	"flow-users/oauth2"
 	"flow-users/oauth2/github"
@@ -36,19 +37,19 @@ func postOverOAuth2(c echo.Context) (err error) {
 	provider := c.Param("provider")
 	switch provider {
 	case oauth2.ProviderGitHub.String():
-		if *githubClientId == "" || *githubClientSecret == "" {
+		if *flags.Get().GithubClientId == "" || *flags.Get().GithubClientSecret == "" {
 			// 404: Not found
 			return echo.ErrNotFound
 		}
 
 	case oauth2.ProviderGoogle.String():
-		if *googleClientId == "" || *googleClientSecret == "" {
+		if *flags.Get().GoogleClientId == "" || *flags.Get().GoogleClientSecret == "" {
 			// 404: Not found
 			return echo.ErrNotFound
 		}
 
 	case oauth2.ProviderTwitter.String():
-		if *twitterClientId == "" || *twitterClientSecret == "" {
+		if *flags.Get().TwitterClientId == "" || *flags.Get().TwitterClientSecret == "" {
 			// 404: Not found
 			return echo.ErrNotFound
 		}
@@ -82,7 +83,7 @@ func postOverOAuth2(c echo.Context) (err error) {
 		}
 
 		// Get owner info
-		a, err := github.New(*githubClientId, *githubClientSecret)
+		a, err := github.New(*flags.Get().GithubClientId, *flags.Get().GithubClientSecret)
 		if err != nil {
 			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
@@ -148,7 +149,7 @@ func postOverOAuth2(c echo.Context) (err error) {
 		}
 
 		// Get owner info
-		a, err := google.New(*googleClientId, *googleClientSecret)
+		a, err := google.New(*flags.Get().GoogleClientId, *flags.Get().GoogleClientSecret)
 		if err != nil {
 			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
@@ -208,7 +209,7 @@ func postOverOAuth2(c echo.Context) (err error) {
 		}
 
 		// Get owner info
-		a, err := twitter.New(*googleClientId, *googleClientSecret)
+		a, err := twitter.New(*flags.Get().GoogleClientId, *flags.Get().GoogleClientSecret)
 		if err != nil {
 			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
@@ -261,7 +262,7 @@ func postOverOAuth2(c echo.Context) (err error) {
 	}
 
 	// Generate token
-	t, err := jwt.GenerateToken(user.UserWithoutPassword{Id: u.Id, Name: name, Email: email}, *jwtIssuer, *jwtSecret)
+	t, err := jwt.GenerateToken(user.UserWithoutPassword{Id: u.Id, Name: name, Email: email}, *flags.Get().JwtIssuer, *flags.Get().JwtSecret)
 	if err != nil {
 		c.Logger().Error(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")

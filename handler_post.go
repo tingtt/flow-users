@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flow-users/flags"
 	"flow-users/jwt"
 	"flow-users/user"
 	"net/http"
@@ -42,7 +43,7 @@ func post(c echo.Context) (err error) {
 	}
 
 	// Generate token
-	t, err := jwt.GenerateToken(p.PostResponse(u.Id), *jwtIssuer, *jwtSecret)
+	t, err := jwt.GenerateToken(p.PostResponse(u.Id), *flags.Get().JwtIssuer, *flags.Get().JwtSecret)
 	if err != nil {
 		c.Logger().Error(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")

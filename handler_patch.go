@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flow-users/flags"
 	"flow-users/jwt"
 	"flow-users/user"
 	"net/http"
@@ -12,7 +13,7 @@ import (
 func patch(c echo.Context) (err error) {
 	// Check token
 	t := c.Get("user").(*jwtGo.Token)
-	user_id, err := jwt.CheckToken(*jwtIssuer, t)
+	user_id, err := jwt.CheckToken(*flags.Get().JwtIssuer, t)
 	if err != nil {
 		c.Logger().Debug(err)
 		return c.JSONPretty(http.StatusNotFound, map[string]string{"message": err.Error()}, "	")

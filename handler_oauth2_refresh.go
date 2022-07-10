@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flow-users/flags"
 	"flow-users/jwt"
 	"flow-users/oauth2"
 	"flow-users/oauth2/twitter"
@@ -13,7 +14,7 @@ import (
 func refreshOAuth2Token(c echo.Context) (err error) {
 	// Check token
 	u := c.Get("user").(*jwtGo.Token)
-	user_id, err := jwt.CheckToken(*jwtIssuer, u)
+	user_id, err := jwt.CheckToken(*flags.Get().JwtIssuer, u)
 	if err != nil {
 		c.Logger().Debug(err)
 		return c.JSONPretty(http.StatusUnauthorized, map[string]string{"message": err.Error()}, "	")
@@ -23,12 +24,12 @@ func refreshOAuth2Token(c echo.Context) (err error) {
 	provider := c.Param("provider")
 	switch provider {
 	case oauth2.ProviderTwitter.String():
-		if *twitterClientId == "" || *twitterClientSecret == "" {
+		if *flags.Get().TwitterClientId == "" || *flags.Get().TwitterClientSecret == "" {
 			// 404: Not found
 			return echo.ErrNotFound
 		}
 
-		a, err := twitter.New(*twitterClientId, *twitterClientSecret)
+		a, err := twitter.New(*flags.Get().TwitterClientId, *flags.Get().TwitterClientSecret)
 		if err != nil {
 			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
