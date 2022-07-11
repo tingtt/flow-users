@@ -81,6 +81,9 @@ func main() {
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: logFormat(),
 		Output: os.Stdout,
+		Skipper: func(c echo.Context) bool {
+			return c.Path() == "/-/readiness"
+		},
 	}))
 
 	// Log level
