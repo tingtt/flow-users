@@ -81,7 +81,7 @@ func main() {
 			AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 		}))
 		e.Logger.Info("CORS enabled")
-		e.Logger.Debugf("CORS allow origins %v", f.AllowOrigins)
+		e.Logger.Debugf("CORS allow origins %s", f.AllowOrigins.String())
 	}
 
 	// JWT
