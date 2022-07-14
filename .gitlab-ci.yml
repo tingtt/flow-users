@@ -67,7 +67,7 @@ deploy-job:
       TWITTER_CLIENT_ID=$TWITTER_CLIENT_ID
       TWITTER_CLIENT_SECRET=$TWITTER_CLIENT_SECRET
       ARGS=$ARGS" > .env
-    - mkdir db/log -p
-    - chmod -R 777 db/log
+    - mkdir .db/log -p
+    - chmod -R 777 .db/log
   script:
     - docker-compose up -d --build --force-recreate
