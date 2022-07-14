@@ -23,6 +23,7 @@ build-main-job:
   stage: build
   only:
     - main
+    - tags
   script:
     - docker build . -t $DOCKER_REGISTORY_URL/$CI_PROJECT_PATH:latest
 
