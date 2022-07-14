@@ -43,8 +43,8 @@ push-main-commit-job:
   needs:
     - push-main-job
   script:
-    - docker tag $DOCKER_REGISTORY_URL/$CI_PROJECT_PATH $DOCKER_REGISTORY_URL/$CI_PROJECT_PATH:$CI_COMMIT_SHA
-    - docker push $DOCKER_REGISTORY_URL/$CI_PROJECT_PATH:$CI_COMMIT_SHA
+    - docker tag $DOCKER_REGISTORY_URL/$CI_PROJECT_PATH $DOCKER_REGISTORY_URL/$CI_PROJECT_PATH:$CI_COMMIT_SHORT_SHA
+    - docker push $DOCKER_REGISTORY_URL/$CI_PROJECT_PATH:$CI_COMMIT_SHORT_SHA
 
 delete-old-main-job:
   stage: build
@@ -53,8 +53,7 @@ delete-old-main-job:
   needs:
     - push-main-commit-job
   script:
-    - curl -X DELETE https://$DOCKER_REGISTORY_URL/v2/$CI_PROJECT_PATH/manifests/$(docker images --filter reference='$DOCKER_REGISTORY_URL/$CI_PROJECT_PATH:$(git rev-parse @~)' --format "{{.Digest}}")
-    - docker rmi $DOCKER_REGISTORY_URL/$CI_PROJECT_PATH:$(git rev-parse @~) || true
+    - docker rmi $DOCKER_REGISTORY_URL/$CI_PROJECT_PATH:$(git rev-parse --short @~) || true
 
 push-tags-job:
   stage: build
