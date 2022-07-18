@@ -73,7 +73,7 @@ update_manifest:
         sed "s/image: registry.tingtt.jp\/flow\/flow-users:v.*/image: registry.tingtt.jp\/flow\/flow-users:$CI_COMMIT_TAG/" | \
         tee 20_users/deploy.yaml
     - git commit -am "[update] $CI_PROJECT_NAME to $CI_COMMIT_TAG"
-    - git push manifests head
+    - git push manifests $CI_PROJECT_NAME/$CI_COMMIT_TAG
 
 deploy-job:
   stage: deploy
