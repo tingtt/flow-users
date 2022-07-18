@@ -69,7 +69,7 @@ update_manifest:
     - git checkout manifests/main
     - git checkout -b $CI_PROJECT_NAME/$CI_COMMIT_TAG
     - |
-      cat 20_users/deploy.yaml \
+      cat 20_users/deploy.yaml | \
         sed "s/image: registry.tingtt.jp\/flow\/flow-users:v.*/image: registry.tingtt.jp\/flow\/flow-users:$CI_COMMIT_TAG/" | \
         tee 20_users/deploy.yaml
     - git commit -am "[update] $CI_PROJECT_NAME to $CI_COMMIT_TAG"
