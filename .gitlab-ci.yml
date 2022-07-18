@@ -65,6 +65,7 @@ update_manifest:
     - push-tags-job
   script:
     - git remote add manifests https://flow-CI:$PRIVATE_TOKEN@gitlab.tingtt.jp/flow/flow-manifests.git
+    - git fetch manifests
     - git checkout manifests/main
     - git checkout -b $CI_PROJECT_NAME/$CI_COMMIT_TAG
     - |
