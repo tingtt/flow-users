@@ -160,7 +160,7 @@ func main() {
 
 	// Health check route
 	e.GET("/-/readiness", func(c echo.Context) error {
-		return c.String(http.StatusOK, "flow-users is Healthy.\n")
+		return c.String(http.StatusOK, "flow-users:v1.1.0 is Healthy.\n")
 	})
 
 	// Published routes
