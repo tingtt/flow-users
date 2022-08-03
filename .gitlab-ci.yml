@@ -2,7 +2,6 @@ stages:
   - delivery
   - build
   - gitops
-  - deploy
 
 push-github:
   stage: delivery
@@ -74,30 +73,3 @@ update_manifest:
         tee 20_users/deploy.yaml
     - git commit -am "[update] $CI_PROJECT_NAME to $CI_COMMIT_TAG"
     - git push manifests $CI_PROJECT_NAME/$CI_COMMIT_TAG
-
-deploy-job:
-  stage: deploy
-  only:
-    - main
-    - tags
-  before_script:
-    - cat .env >> /dev/null && sudo docker-compose stop web || true
-    - |
-      echo -e \
-      "TZ=$TZ
-      PORT=$PORT
-      MYSQL_PASSWORD=$MYSQL_PASSWORD
-      MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
-      JWT_ISSUER=$JWT_ISSUER
-      JWT_SECRET=$JWT_SECRET
-      GITHUB_CLIENT_ID=$GITHUB_CLIENT_ID
-      GITHUB_CLIENT_SECRET=$GITHUB_CLIENT_SECRET
-      GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
-      GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
-      TWITTER_CLIENT_ID=$TWITTER_CLIENT_ID
-      TWITTER_CLIENT_SECRET=$TWITTER_CLIENT_SECRET
-      ARGS=$ARGS" > .env
-    - mkdir .db/log -p
-    - chmod -R 777 .db/log
-  script:
-    - docker-compose up -d --build --force-recreate
